@@ -19,4 +19,9 @@ public interface EventService {
     Page<Event> getOrganizerEvents(String organizerEmail, EventStatus status, Pageable pageable);
     List<String> getAllTags();
     List<String> getAllLocations();
+
+    // ---- Admin methods ----
+    Page<Event> getAllEvents(String keyword, EventStatus status, Pageable pageable);
+    void adminCancelOrDeleteEvent(String eventId);
+    java.util.Map<String, Object> getReportData();
 }

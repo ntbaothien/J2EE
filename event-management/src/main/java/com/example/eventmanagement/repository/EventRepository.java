@@ -14,7 +14,7 @@ public interface EventRepository extends MongoRepository<Event, String> {
     Page<Event> findByStatus(EventStatus status, Pageable pageable);
 
     @Query("{ 'status': ?0, 'title': { $regex: ?1, $options: 'i' } }")
-    Page<Event> findByStatusAndTitleContaining(EventStatus status, String keyword, Pageable pageable);
+    Page<Event> findByStatusAndTitleContaining1(EventStatus status, String keyword, Pageable pageable);
 
     @Query("{ 'status': ?0, 'tags': ?1 }")
     Page<Event> findByStatusAndTagsContaining(EventStatus status, String tag, Pageable pageable);
@@ -30,4 +30,13 @@ public interface EventRepository extends MongoRepository<Event, String> {
 
     @Query("{ 'tags': { $exists: true } }")
     List<Event> findAllTaggedEvents();
+
+    // ---- Admin queries ----
+    @Query("{ 'title': { $regex: ?0, $options: 'i' } }")
+    Page<Event> findByTitleContaining(String keyword, Pageable pageable);
+
+    @Query("{ 'status': ?0, 'title': { $regex: ?1, $options: 'i' } }")
+    Page<Event> findByStatusAndTitleContaining(EventStatus status, String keyword, Pageable pageable);
+
+    long countByStatus(EventStatus status);
 }

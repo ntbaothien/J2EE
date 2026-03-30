@@ -18,6 +18,8 @@ import MyEventsPage from './pages/admin/EventManagePage'; // My Events (organize
 // Admin pages
 import DashboardPage from './pages/admin/DashboardPage';
 import UserManagePage from './pages/admin/UserManagePage';
+import AdminEventManagePage from './pages/admin/AdminEventManagePage';
+import ReportsPage from './pages/admin/ReportsPage';
 
 // Profile pages
 import ProfilePage from './pages/profile/ProfilePage';
@@ -73,6 +75,8 @@ export default function App() {
         {/* Admin only */}
         <Route path="/admin" element={<AdminRoute><DashboardPage /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><UserManagePage /></AdminRoute>} />
+        <Route path="/admin/events" element={<AdminRoute><AdminEventManagePage /></AdminRoute>} />
+        <Route path="/admin/reports" element={<AdminRoute><ReportsPage /></AdminRoute>} />
 
         {/* Profile */}
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
