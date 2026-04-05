@@ -188,6 +188,20 @@ export default function MyTicketsPage() {
     }
   };
 
+  // Helper: kiểm tra xem ticket đã hết hạn hay không
+  const getStatusInfo = (status) => {
+    switch (status?.toUpperCase()) {
+      case 'CONFIRMED':
+        return { color: '#81c784', bgColor: 'rgba(76,175,80,0.15)', icon: '✅' };
+      case 'CANCELLED':
+        return { color: '#ef9a9a', bgColor: 'rgba(244,67,54,0.15)', icon: '❌' };
+      case 'EXPIRED':
+        return { color: '#ff6b6b', bgColor: 'rgba(255,107,107,0.15)', icon: '⏰' };
+      default:
+        return { color: 'rgba(255,255,255,0.6)', bgColor: 'rgba(255,255,255,0.05)', icon: '?' };
+    }
+  };
+
   const visible = tab === 'all'
     ? { regs, bookings }
     : tab === 'free'
@@ -232,15 +246,22 @@ export default function MyTicketsPage() {
           <div className="reg-grid">
 
             {/* Vé miễn phí */}
-            {visible.regs.map(r => (
-              <div key={r.id} className="reg-card">
+            {visible.regs.map(r => {
+              const statusInfo = getStatusInfo(r.status);
+              const isExpired = r.status?.toUpperCase() === 'EXPIRED';
+              return (
+              <div key={r.id} className="reg-card" style={{ opacity: isExpired ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <span style={{
                     fontSize: '0.72rem', padding: '2px 10px', borderRadius: '20px',
                     background: 'rgba(76,175,80,0.15)', color: '#81c784',
                     border: '1px solid rgba(76,175,80,0.3)', fontWeight: 600,
                   }}>🆓 Miễn phí</span>
-                  <span className={`reg-status-${r.status?.toLowerCase()}`}>{r.status}</span>
+                  <span style={{
+                    fontSize: '0.72rem', padding: '2px 10px', borderRadius: '20px',
+                    background: statusInfo.bgColor, color: statusInfo.color,
+                    border: `1px solid ${statusInfo.color}33`, fontWeight: 600,
+                  }}>{statusInfo.icon} {r.status}</span>
                 </div>
 
                 <h4>{r.eventTitle || 'Sự kiện'}</h4>
@@ -249,6 +270,17 @@ export default function MyTicketsPage() {
                 <p className="event-meta" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
                   Đăng ký: {r.registeredAt ? new Date(r.registeredAt).toLocaleDateString('vi-VN') : '—'}
                 </p>
+
+                {isExpired && (
+                  <div style={{
+                    background: 'rgba(255,107,107,0.15)', border: '1px solid rgba(255,107,107,0.3)',
+                    borderRadius: '8px', padding: '0.5rem', marginBottom: '0.5rem',
+                    color: '#ff6b6b', fontSize: '0.8rem', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  }}>
+                    ⏰ Sự kiện đã kết thúc - Vé không còn hiệu lực
+                  </div>
+                )}
 
                 {r.checkedIn && (
                   <div style={{
@@ -260,7 +292,7 @@ export default function MyTicketsPage() {
                 )}
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                  {r.qrCodeBase64 && (
+                  {r.qrCodeBase64 && !isExpired && (
                     <button
                       id={`btn-qr-free-${r.id}`}
                       className="btn-sm"
@@ -275,18 +307,26 @@ export default function MyTicketsPage() {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
 
             {/* Vé có phí */}
-            {visible.bookings.map(b => (
-              <div key={b.id} className="reg-card" style={{ borderColor: 'rgba(167,139,250,0.2)' }}>
+            {visible.bookings.map(b => {
+              const statusInfo = getStatusInfo(b.status);
+              const isExpired = b.status?.toUpperCase() === 'EXPIRED';
+              return (
+              <div key={b.id} className="reg-card" style={{ borderColor: 'rgba(167,139,250,0.2)', opacity: isExpired ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <span style={{
                     fontSize: '0.72rem', padding: '2px 10px', borderRadius: '20px',
                     background: 'rgba(255,193,7,0.15)', color: '#ffc107',
                     border: '1px solid rgba(255,193,7,0.3)', fontWeight: 600,
                   }}>💳 Có phí</span>
-                  <span className={`reg-status-${b.status?.toLowerCase()}`}>{b.status}</span>
+                  <span style={{
+                    fontSize: '0.72rem', padding: '2px 10px', borderRadius: '20px',
+                    background: statusInfo.bgColor, color: statusInfo.color,
+                    border: `1px solid ${statusInfo.color}33`, fontWeight: 600,
+                  }}>{statusInfo.icon} {b.status}</span>
                 </div>
 
                 <h4>{b.eventTitle || 'Sự kiện'}</h4>
@@ -299,6 +339,17 @@ export default function MyTicketsPage() {
                   Đặt: {b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : '—'}
                 </p>
 
+                {isExpired && (
+                  <div style={{
+                    background: 'rgba(255,107,107,0.15)', border: '1px solid rgba(255,107,107,0.3)',
+                    borderRadius: '8px', padding: '0.5rem', marginBottom: '0.5rem',
+                    color: '#ff6b6b', fontSize: '0.8rem', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  }}>
+                    ⏰ Sự kiện đã kết thúc - Vé không còn hiệu lực
+                  </div>
+                )}
+
                 {b.checkedIn && (
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -309,7 +360,7 @@ export default function MyTicketsPage() {
                 )}
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                  {b.qrCodeBase64 && (
+                  {b.qrCodeBase64 && !isExpired && (
                     <button
                       id={`btn-qr-paid-${b.id}`}
                       className="btn-sm"
@@ -324,7 +375,8 @@ export default function MyTicketsPage() {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
 
           </div>
         )}

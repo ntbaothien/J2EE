@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [revenue, setRevenue] = useState(null);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [msg, setMsg] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -32,6 +34,22 @@ export default function DashboardPage() {
     }).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  const handleUpdateBanners = async () => {
+    if (!window.confirm('Điều này sẽ tải ảnh từ Unsplash và cập nhật cho các sự kiện chưa có hình. Tiếp tục?')) {
+      return;
+    }
+    setUpdating(true);
+    setMsg('');
+    try {
+      const res = await axiosInstance.post('/admin/update-banners');
+      setMsg('✅ ' + res.data.message);
+    } catch (err) {
+      setMsg('❌ ' + (err.response?.data?.error || 'Lỗi khi cập nhật hình ảnh'));
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -191,6 +209,37 @@ export default function DashboardPage() {
 
   return (
     <AdminLayout title="📊 Tổng quan" subtitle="Dashboard quản trị hệ thống">
+      {/* Thông báo */}
+      {msg && (
+        <div style={{
+          background: msg.includes('✅') ? 'rgba(76,175,80,0.15)' : 'rgba(255,107,107,0.15)',
+          border: `1px solid ${msg.includes('✅') ? '#81c784' : '#ff6b6b'}`,
+          borderRadius: '10px', padding: '1rem', marginBottom: '1.5rem',
+          color: msg.includes('✅') ? '#81c784' : '#ff6b6b', fontWeight: 600,
+        }}>
+          {msg}
+        </div>
+      )}
+
+      {/* Quick Actions */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '1rem', marginBottom: '2rem',
+      }}>
+        <button
+          onClick={handleUpdateBanners}
+          disabled={updating}
+          style={{
+            padding: '0.75rem', borderRadius: '10px',
+            background: updating ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #556cd6 0%, #b04c7e 100%)',
+            border: 'none', color: '#fff', fontWeight: 700, cursor: updating ? 'not-allowed' : 'pointer',
+            fontSize: '0.9rem', transition: 'all 0.2s',
+          }}
+        >
+          {updating ? '⏳ Đang cập nhật...' : '🖼️ Cập nhật hình ảnh sự kiện'}
+        </button>
+      </div>
+
       {/* Stat Cards */}
       <div className="admin-stats-grid">
         {statCards.map((card, i) => (

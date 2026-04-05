@@ -1,5 +1,5 @@
 package com.example.eventmanagement.model.enums;
 
 public enum BookingStatus {
-    PENDING, CONFIRMED, CANCELLED, REFUNDED
+    PENDING, CONFIRMED, CANCELLED, REFUNDED, EXPIRED
 }

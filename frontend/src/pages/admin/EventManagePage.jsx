@@ -1,35 +1,47 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 import Navbar from '../../components/common/Navbar';
 import '../events/Events.css';
 
 export default function MyEventsPage() {
+  const location = useLocation();
   const [data, setData] = useState({ content: [], totalPages: 0 });
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState({ text: '', type: '' });
 
-  const fetchEvents = async (p = page, s = statusFilter) => {
+  const fetchEvents = async (p, s) => {
     setLoading(true);
     try {
       const params = { page: p };
       if (s) params.status = s;
       const { data: res } = await axiosInstance.get('/organizer/my-events', { params });
       setData(res);
-    } catch (e) { console.error(e); }
+      console.log(`[EventManagePage] Fetched page=${p}, status=${s || 'all'}, totalPages=${res.totalPages}, count=${res.content.length}`);
+    } catch (e) { console.error('[EventManagePage] Fetch error:', e); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  // Khi component mount hoặc location thay đổi (từ create/edit page), reset về trang đầu
+  useEffect(() => {
+    setPage(0);
+    setStatusFilter('');
+    // Sẽ trigger fetchEvents qua dependency bên dưới
+  }, [location.pathname]);
+
+  // Fetch khi page hoặc filter thay đổi
+  useEffect(() => {
+    fetchEvents(page, statusFilter);
+  }, [page, statusFilter]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc muốn hủy/xóa sự kiện này?')) return;
     try {
       await axiosInstance.delete(`/organizer/events/${id}`);
       setMsg({ text: 'Đã hủy/xóa sự kiện thành công', type: 'success' });
-      fetchEvents();
+      fetchEvents(page, statusFilter);
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Thao tác thất bại', type: 'error' });
     }
@@ -53,7 +65,7 @@ export default function MyEventsPage() {
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
           {statuses.map(s => (
             <button key={s} className={`btn-sm ${statusFilter === s ? 'btn-primary-sm' : 'btn-info'}`}
-              onClick={() => { setStatusFilter(s); setPage(0); fetchEvents(0, s); }}>
+              onClick={() => { setStatusFilter(s); setPage(0); }}>
               {s || 'Tất cả'}
             </button>
           ))}
@@ -95,7 +107,7 @@ export default function MyEventsPage() {
           <div className="pagination">
             {Array.from({ length: data.totalPages }, (_, i) => (
               <button key={i} className={`page-btn ${i === page ? 'active' : ''}`}
-                onClick={() => { setPage(i); fetchEvents(i); }}>{i + 1}</button>
+                onClick={() => setPage(i)}>{i + 1}</button>
             ))}
           </div>
         )}

@@ -9,6 +9,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     List<Booking> findByUserId(String userId);
     List<Booking> findByEventId(String eventId);
     List<Booking> findByEventIdAndStatus(String eventId, String status);
+    List<Booking> findByStatus(String status);
     long countByEventIdAndStatus(String eventId, String status);
     boolean existsByEventIdAndUserIdAndStatus(String eventId, String userId, String status);
 }

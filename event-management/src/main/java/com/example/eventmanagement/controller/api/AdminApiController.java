@@ -11,6 +11,7 @@ import com.example.eventmanagement.repository.UserRepository;
 import com.example.eventmanagement.service.BookingService;
 import com.example.eventmanagement.service.EventService;
 import com.example.eventmanagement.service.UserService;
+import com.example.eventmanagement.service.EventBannerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ public class AdminApiController {
     @Autowired private RegistrationRepository registrationRepository;
     @Autowired private BookingService bookingService;
     @Autowired private EventService eventService;
+    @Autowired private EventBannerService eventBannerService;
 
     // ===== Dashboard =====
     @GetMapping("/dashboard")
@@ -192,5 +194,16 @@ public class AdminApiController {
     @GetMapping("/reports")
     public ResponseEntity<?> reports() {
         return ResponseEntity.ok(eventService.getReportData());
+    }
+
+    // ===== Event Banner Management =====
+    @PostMapping("/update-banners")
+    public ResponseEntity<?> updateMissingBanners() {
+        try {
+            eventBannerService.updateMissingBanners();
+            return ResponseEntity.ok(Map.of("message", "Đang cập nhật hình ảnh cho các sự kiện. Vui lòng chờ..."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

@@ -75,7 +75,9 @@ export default function EventListPage() {
   const updateFilter = (key, val) => {
     const next = new URLSearchParams(searchParams);
     if (val) next.set(key, val); else next.delete(key);
-    next.delete('page');
+    // Chỉ reset page về 0 nếu update filter khác (keyword, tag, location, time)
+    // Nếu đang update page, giữ lại giá trị cũ
+    if (key !== 'page') next.delete('page');
     setSearchParams(next);
   };
 

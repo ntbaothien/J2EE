@@ -77,7 +77,17 @@ export default function EventFormPage() {
     fd.append('tagsInput', form.tagsInput);
     fd.append('isFree', form.isFree);
     if (!form.isFree && zones.length > 0) {
-      fd.append('zonesJson', JSON.stringify(zones));
+      // Filter out calculated fields (availableSeats) để tránh lỗi deserialization
+      const cleanZones = zones.map(z => ({
+        id: z.id,
+        name: z.name,
+        description: z.description,
+        color: z.color,
+        totalSeats: z.totalSeats,
+        soldSeats: z.soldSeats || 0,
+        price: z.price || 0
+      }));
+      fd.append('zonesJson', JSON.stringify(cleanZones));
     }
     if (bannerFile) fd.append('bannerFile', bannerFile);
     try {
